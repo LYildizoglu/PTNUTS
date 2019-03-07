@@ -1,0 +1,24 @@
+function [par,bench]=loadallsampledata(name1,name2)
+j=1;
+for i=1:360
+%try
+par{j}=loadcleansamp([name1 num2str(i) name2]);   
+bench.burn(j)=BurnInBySequentialGeweke(par{j}.S.par(:,:,1)',2);
+bench.ctime(j)=par{j}.ctime;
+bench.size(j)=length(par{j}.S.par);
+bench.fiact(j,:)=iact(par{j}.S.par(:,:,1)');
+if bench.burn(j)==0
+    bench.iact(j,:)=bench.fiact(j,:);
+elseif bench.size(j)~=bench.burn(j)
+bench.iact(j,:)=iact(par{j}.S.par(:,bench.burn(j):end,1)');
+else 
+    bench.iact(j,:)=inf*ones(1,par{j}.number);
+end
+bench.ess(j)=(bench.size(j)-bench.burn(j))/max(bench.iact(j,:));
+bench.esss(j)=(bench.size(j)-bench.burn(j))/max(bench.iact(j,:))/bench.ctime(j);
+j=j+1;
+%catch 
+%end
+end
+bench.num=j-1;
+end
